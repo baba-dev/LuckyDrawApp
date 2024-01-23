@@ -24,7 +24,7 @@ st.set_page_config(
 
 # Sidebar Initialization
 with st.sidebar:
-    st.image(r"./media/logo.png")
+    st.image("https://private-user-images.githubusercontent.com/60427476/298835081-b6dc35bd-9671-4415-82ab-2f94f2a275f7.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDU5OTM5NDgsIm5iZiI6MTcwNTk5MzY0OCwicGF0aCI6Ii82MDQyNzQ3Ni8yOTg4MzUwODEtYjZkYzM1YmQtOTY3MS00NDE1LTgyYWItMmY5NGYyYTI3NWY3LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAxMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMTIzVDA3MDcyOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWE5MDU1YWE1YTg3ZTRhODI5MTY0ODgzYTgwZjc1NDRhODk1NmVhN2U3YWIwMWM5MmFjMjY5NjA5N2JhMTMyZmEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.URjY-IG33QMzMsqHvJ-OrQqcbwsMfbxm5-FCwvb1cLo")
     st.header(" **Al Masa Mall: Lucky Draw:tada:**", divider='rainbow')
     with st.expander("2024 Al Masa Draw Guidelines", expanded = True):
         st.write("""
