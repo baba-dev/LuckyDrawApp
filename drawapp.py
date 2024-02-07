@@ -29,7 +29,7 @@ with st.sidebar:
     with st.expander("2024 Al Masa Draw Guidelines", expanded = True):
         st.write("""
                 *   Required Details: Name, Instagram ID, State & Country.
-                *   Draw Prize      : iPhone 14 Pro (Gold)
+                *   Draw Prize      : iPhone 15 Pro Max (Gold)
                 *   Draw Winners    : 1
                 *   Extra Shake Enabled: Yes
                 *   Social Media Requirement: Yes
@@ -100,7 +100,7 @@ if 'submitted' in st.session_state:
             with col1:
                 st.dataframe(draw_data.head(20))  # Display dataset preview using st.dataframe
             with col2:
-                col2.metric("Current Draw Prize", "iPhone 14 Pro")
+                col2.metric("Current Draw Prize", "iPhone 15 Pro Max")
                 col2.metric("Total Participants", draw_data.shape[0])
                 col2.metric("From Unique Cities", draw_data["City"].nunique())
                 col2.metric("From Different Nations", draw_data["Country"].nunique())
