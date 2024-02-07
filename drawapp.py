@@ -146,7 +146,7 @@ if 'submitted' in st.session_state:
                         with cols[i]:  # Place each card in a separate column
                             winner = card(
                                 f"Winner {i+1}",  # Card title
-                                f"Congrats {winner_data.Full_Name}\t ,  {winner_data.Mobile_No},  {winner_data.Invoice_ID}",  # Card content
+                                f"Congrats {winner_data.Full_Name}\t , Mobile Number:  {winner_data.Mobile_No},  {winner_data.Invoice_ID}",  # Card content
                                 image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
                                 styles={
                                     "card": {
