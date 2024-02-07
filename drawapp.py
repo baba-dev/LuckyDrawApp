@@ -98,7 +98,7 @@ if 'submitted' in st.session_state:
             st.subheader("Step 2 : Data Analytics:", divider='rainbow')
             col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
-                st.dataframe(draw_data.head(20))  # Display dataset preview using st.dataframe
+                st.dataframe(draw_data.head(279))  # Display dataset preview using st.dataframe
             with col2:
                 col2.metric("Total Participants", draw_data.shape[0])
                 col2.metric("Current Draw Prize", "iPhone 15")
