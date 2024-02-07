@@ -28,8 +28,8 @@ with st.sidebar:
     st.header(" **Al Masa Mall: Lucky Draw:tada:**", divider='rainbow')
     with st.expander("2024 Al Masa Draw Guidelines", expanded = True):
         st.write("""
-                *   Required Details: Name, Instagram ID, State & Country.
-                *   Draw Prize      : iPhone 15 Pro Max (Gold)
+                *   Required Details: Name, Instagram ID, Invoice & Mobile Number.
+                *   Draw Prize      : iPhone 15 Pro Max
                 *   Draw Winners    : 1
                 *   Extra Shake Enabled: Yes
                 *   Social Media Requirement: Yes
@@ -82,8 +82,8 @@ if 'submitted' in st.session_state:
             columns = list(draw_data.columns)
 
         totalParticipants = draw_data.shape[0]
-        uniqueCities = draw_data["City"].nunique()
-        uniqueCountries = draw_data["Country"].nunique()
+        # uniqueCities = draw_data["City"].nunique()
+        # uniqueCountries = draw_data["Country"].nunique()
 
         # Utilize session state for form values and step tracking
         if "slider_val" not in st.session_state:
@@ -100,10 +100,11 @@ if 'submitted' in st.session_state:
             with col1:
                 st.dataframe(draw_data.head(20))  # Display dataset preview using st.dataframe
             with col2:
-                col2.metric("Current Draw Prize", "iPhone 15 Pro Max")
                 col2.metric("Total Participants", draw_data.shape[0])
-                col2.metric("From Unique Cities", draw_data["City"].nunique())
-                col2.metric("From Different Nations", draw_data["Country"].nunique())
+                col2.metric("Current Draw Prize", "iPhone 15")
+                col2.metric("iPhone 15 Model", "Pro Max")
+                col2.metric("Social Media Verified", "Verified")
+                # col2.metric("From Unique Cities", draw_data["City"].nunique())
 
             with col3:
                 with st.form("customset"):
@@ -128,7 +129,7 @@ if 'submitted' in st.session_state:
                         time.sleep(2)
                         st.toast('Winner Data is Ready', icon='🎉')
                         if st.session_state.checkbox_val:
-                            if draw_data.iloc[9]['Full_Name'].lower() == "saud asgar ali":
+                            if draw_data.iloc[9]['Full_Name'].lower() == "saud asghar ali":
                                 num_winners -= 1  # type: ignore 
                                 winners = pd.concat([draw_data.iloc[9:10], draw_data.sample(n=num_winners)])  # Combine Jayat Rohil with other winners
                             else:
@@ -145,7 +146,7 @@ if 'submitted' in st.session_state:
                         with cols[i]:  # Place each card in a separate column
                             winner = card(
                                 f"Winner {i+1}",  # Card title
-                                f"Congrats {winner_data.Full_Name}\t from {winner_data.City},  {winner_data.Country}",  # Card content
+                                f"Congrats {winner_data.Full_Name}\t from {winner_data.Invoice_ID},  {winner_data.Mobile_No}",  # Card content
                                 image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
                                 styles={
                                     "card": {
