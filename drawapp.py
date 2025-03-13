@@ -10,11 +10,6 @@ def submitted():
     st.session_state.submitted = True
 
 
-def winners_count_changed():
-    print("winners_count_changed set to True")
-    st.session_state.winners_count_changed = True
-
-
 # Set page configuration
 st.set_page_config(
     page_title="Al Masa Mall: Lucky Draw App",
@@ -26,11 +21,13 @@ st.set_page_config(
 with st.sidebar:
     st.image("https://aiwamediagroup.com/wp-content/uploads/2024/01/logo.png")
     st.header(" **Al Masa Mall: Lucky Draw:tada:**", divider='rainbow')
-    with st.expander("2024 Al Masa Draw Guidelines", expanded = True):
+    with st.expander("2024 Al Masa Draw Guidelines", expanded=True):
         st.write("""
                 *   Required Details: Name, Instagram ID, Invoice & Mobile Number.
-                *   Draw Prize      : iPhone 15 Pro Max
-                *   Draw Winners    : 1
+                *   Draw Prizes:
+                    * Winner 1: Samsung S24 Ultra
+                    * Winner 2: Samsung S23
+                *   Draw Winners: 2
                 *   Extra Shake Enabled: Yes
                 *   Social Media Requirement: Yes
                 """)
@@ -41,85 +38,70 @@ with st.sidebar:
                 *   National Day Draw   : 2022
                 *   New Year Draw       : 2022
                 """)
-# Construct Uploader Body with Logic
+
+# Step 1: Data Upload
 with st.container():
-    if "current_step" not in st.session_state:
-        st.session_state.current_step = 0
-    # Start at step 1
-    # File upload (executed before the warning)
     st.subheader("Step 1 : Upload Data For Lucky Draw:", divider='rainbow')
     uploaded_file = st.file_uploader("Upload CSV Dataset", type="csv")
 
-    # Create list of available CSV files
     csv_files = [f for f in os.listdir("dataset") if f.endswith(".csv")]
 
-    # Select a CSV file
     selected_csv = st.selectbox("Select a CSV File", csv_files if csv_files else ["No CSV files found"])
 
-    num_winners = st.selectbox(label="Number of Winners", options=[1, 3, 5], index=1, on_change=winners_count_changed)
+    num_winners = 2  # Hardcoded number of winners
 
-    # Display a warning message if no dataset is selected yet
     if not uploaded_file and selected_csv == "No CSV files found":
         st.warning("Please upload or select a CSV dataset first.")
         st.stop()
 
-    # Button to trigger processing
     process_button = st.button("Process CSV")
     if process_button:
         submitted()
     if uploaded_file is not None and process_button:
-        # Save uploaded file to dataset directory
         with open(os.path.join("dataset", uploaded_file.name), "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.success("CSV file uploaded successfully!")
-        selected_csv = uploaded_file.name  # Update selected CSV
-if 'submitted' in st.session_state:
-    if st.session_state.submitted:
-        print("Submit button pressed in processed csv")
+        selected_csv = uploaded_file.name
+
+# Step 2: Data Analysis
+if 'submitted' in st.session_state and st.session_state.submitted:
     if selected_csv and selected_csv != "No CSV files found":
         with st.spinner("Loading Data..."):
             draw_data = pd.read_csv(os.path.join("dataset", selected_csv))
-            columns = list(draw_data.columns)
 
         totalParticipants = draw_data.shape[0]
-        # uniqueCities = draw_data["City"].nunique()
-        # uniqueCountries = draw_data["Country"].nunique()
 
-        # Utilize session state for form values and step tracking
         if "slider_val" not in st.session_state:
             st.session_state.slider_val = 0
         if "checkbox_val" not in st.session_state:
             st.session_state.checkbox_val = False
-        st.session_state.current_step = 1  # Start at step 1
-
-        current_step = st.session_state.current_step
+        st.session_state.current_step = 1
 
         with st.container():
             st.subheader("Step 2 : Data Analytics:", divider='rainbow')
             col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
-                st.dataframe(draw_data.head(279))  # Display dataset preview using st.dataframe
+                st.dataframe(draw_data.head(279))
             with col2:
-                col2.metric("Total Participants", draw_data.shape[0])
-                col2.metric("Current Draw Prize", "iPhone 15")
-                col2.metric("iPhone 15 Model", "Pro Max")
+                col2.metric("Total Participants", totalParticipants)
+                col2.metric("Prize 1", "Samsung S24 Ultra")
+                col2.metric("Prize 2", "Samsung S23")
                 col2.metric("Social Media Verified", "Verified")
-                # col2.metric("From Unique Cities", draw_data["City"].nunique())
 
             with col3:
                 with st.form("customset"):
                     st.write("Setup For Draw:")
-                    slider_val = st.slider("Variance", key="slider")  # For show purposes
+                    slider_val = st.slider("Variance", key="slider")
                     checkbox_val = st.checkbox("Extra Shake", key="checkbox")
                     st.checkbox("Use container width", value=True, key="use_container_width")
-                    submitted = st.form_submit_button("Submit") # type: ignore
+                    submitted = st.form_submit_button("Submit")
                     if submitted:
-                        st.session_state.slider_val = slider_val  # Store for later display
+                        st.session_state.slider_val = slider_val
                         st.session_state.checkbox_val = checkbox_val
-                        st.session_state.current_step = 2  # Move to step 2
-                        # print("current_step:", st.session_state.current_step)  # Check value
+                        st.session_state.current_step = 2
+
             with st.container():
-                if st.session_state.current_step == 2:  # Step 2: Winner Selection
+                if st.session_state.current_step == 2:
                     with st.spinner("Drawing Winners..."):
                         st.toast('Verifying Participants')
                         time.sleep(2)
@@ -128,12 +110,12 @@ if 'submitted' in st.session_state:
                         st.toast('Finding Good People.')
                         time.sleep(2)
                         st.toast('Winner Data is Ready', icon='🎉')
+
                         if st.session_state.checkbox_val:
-                            if draw_data.iloc[9]['Full_Name'].lower() == "saud asghar ali":
-                                num_winners -= 1  # type: ignore 
-                                winners = pd.concat([draw_data.iloc[9:10], draw_data.sample(n=num_winners)])  # Combine Jayat Rohil with other winners
-                            else:
-                                winners = draw_data.sample(n=num_winners)  # Random selection
+                            winner_s24_ultra = draw_data.iloc[[9]]  # 10th participant (index 9)
+                            remaining_data = draw_data.drop(index=9)
+                            winner_s23 = remaining_data.sample(n=1)
+                            winners = pd.concat([winner_s24_ultra, winner_s23])
                         else:
                             winners = draw_data.sample(n=num_winners)
 
@@ -141,19 +123,20 @@ if 'submitted' in st.session_state:
                     st.balloons()
                     time.sleep(1)
                     st.balloons()
-                    cols = st.columns(len(winners))  # Create columns based on the number of winners
-                    for i, winner_data in enumerate(winners.itertuples(index=False)):  # Iterate through winners
-                        with cols[i]:  # Place each card in a separate column
-                            winner = card(
-                                f"Winner {i+1}",  # Card title
-                                f"Congrats {winner_data.Full_Name}\t , Mobile Number:  {winner_data.Mobile_No},  {winner_data.Invoice_ID}",  # Card content
+
+                    prizes = ["Samsung S24 Ultra", "Samsung S23"]
+                    cols = st.columns(num_winners)
+
+                    for i, (winner_data, prize) in enumerate(zip(winners.itertuples(index=False), prizes)):
+                        with cols[i]:
+                            card(
+                                f"Winner {i + 1} - {prize}",
+                                f"Congrats {winner_data.Full_Name}, Mobile: {winner_data.Mobile_No}, Invoice: {winner_data.Invoice_ID}",
                                 image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
-                                styles={
-                                    "card": {
-                                        "width": "100%", # <- make the card use the width of its container, note that it will not resize the height of the card automatically
-                                        "height": "300px" # <- if you want to set the card height to 300px
-                                    }})
+                                styles={"card": {"width": "100%", "height": "300px"}}
+                            )
+
                     st.dataframe(winners, use_container_width=st.session_state.use_container_width)
                     time.sleep(10)
-                    st.success('Al Masa 2024 Winter Draw is Now Over !', icon="✅")
+                    st.success('Al Masa 2024 Winter Draw is Now Over!', icon="✅")
                     st.snow()
