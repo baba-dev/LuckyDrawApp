@@ -19,9 +19,9 @@ st.set_page_config(
 
 # Sidebar Initialization
 with st.sidebar:
-    st.image("https://aiwamediagroup.com/wp-content/uploads/2024/01/logo.png")
+    st.image("https://aiwamediagroup.com/wp-content/uploads/2024/05/AiwaMediaGroup-980x393.webp")
     st.header(" **Al Masa Mall: Lucky Draw:tada:**", divider='rainbow')
-    with st.expander("2024 Al Masa Draw Guidelines", expanded=True):
+    with st.expander("2025 Al Masa Draw Guidelines", expanded=True):
         st.write("""
                 *   Required Details: Name, Instagram ID, Invoice & Mobile Number.
                 *   Draw Prizes:
@@ -33,7 +33,7 @@ with st.sidebar:
                 """)
     with st.expander("Al Masa Mall - Previous Draws:"):
         st.write("""
-                *   Grand New Year Draw : 2023
+                *   Grand New Year Draw : 2024
                 *   Eid ul Fitr Draw    : 2023
                 *   National Day Draw   : 2022
                 *   New Year Draw       : 2022
