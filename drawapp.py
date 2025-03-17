@@ -68,6 +68,7 @@ if 'submitted' in st.session_state and st.session_state.submitted:
     if selected_csv and selected_csv != "No CSV files found":
         with st.spinner("Loading Data..."):
             draw_data = pd.read_csv(os.path.join("dataset", selected_csv))
+            draw_data.columns = draw_data.columns.str.strip()
 
         totalParticipants = draw_data.shape[0]
 
