@@ -86,7 +86,7 @@ if 'submitted' in st.session_state and st.session_state.submitted:
             with col2:
                 col2.metric("Total Participants", totalParticipants)
                 col2.metric("Prize 1", "Apple iPhone 17 Pro")
-                col2.metric("Prize 2", "Samsung S23")
+                # col2.metric("Prize 2", "Samsung S23")
                 col2.metric("Social Media Verified", "Verified")
 
             with col3:
@@ -141,4 +141,5 @@ if 'submitted' in st.session_state and st.session_state.submitted:
                     time.sleep(10)
                     st.success('Al Masa 2026 Winter Draw is Now Over!', icon="✅")
                     st.snow()
+
 
