@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="Al Masa Mall: Grand Draw",
     page_icon="💎",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # --- CUSTOM CSS ---
@@ -265,4 +265,5 @@ else:
             st.session_state.current_step = 0
             st.session_state.winners_list = None
             st.rerun()
+
 
