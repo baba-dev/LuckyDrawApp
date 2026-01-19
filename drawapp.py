@@ -6,13 +6,13 @@ from streamlit_card import card
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Al Masa Mall: Multi-Draw System",
+    page_title="Al Masa Mall: Grand Draw",
     page_icon="💎",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- CUSTOM CSS FOR THE LAYOUT ---
+# --- CUSTOM CSS ---
 st.markdown("""
     <style>
     /* Hide Streamlit default menu/footer */
@@ -34,26 +34,27 @@ st.markdown("""
         width: 100%;
     }
 
-    /* CUSTOM BOXES FOR SIDE DRAWS (Draw 1 & 2) */
+    /* CUSTOM BOXES FOR TEASER DRAWS */
     .side-draw-box {
-        border: 2px solid #4CAF50; /* Green Border */
+        border: 2px solid #444; /* Grey Border */
         background-color: #1e1e1e;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 10px; /* Reduced padding to fit 4 boxes */
+        border-radius: 8px;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 15px; /* Reduced margin */
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        opacity: 0.9;
     }
     .side-draw-title {
         color: #aaaaaa;
-        font-size: 14px;
+        font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 10px;
+        margin-bottom: 2px;
     }
     .side-draw-name {
         color: #ffffff;
-        font-size: 22px;
+        font-size: 18px; /* Slightly smaller font */
         font-weight: bold;
     }
     
@@ -64,6 +65,7 @@ st.markdown("""
         color: #FFD700; /* Gold */
         text-align: center;
         margin-bottom: 20px;
+        text-transform: uppercase;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -75,6 +77,8 @@ if 'current_step' not in st.session_state:
     st.session_state.current_step = 0
 if 'winners_list' not in st.session_state:
     st.session_state.winners_list = None
+if 'selected_csv_path' not in st.session_state:
+    st.session_state.selected_csv_path = None
 
 def submitted():
     st.session_state.submitted = True
@@ -87,16 +91,18 @@ with st.sidebar:
     
     with st.expander("📝 Draw Guidelines", expanded=True):
         st.info("""
-        **System Logic:**
-        * Each shuffle pulls **3 Unique Winners**.
-        * **Winner 1:** Runner Up (Left Top)
-        * **Winner 2:** Runner Up (Left Bottom)
-        * **Winner 3:** Grand Prize (Main Screen)
+        **Prize Structure:**
+        * 🏆 **1 Official Winner:** (Main Screen)
+        * ✨ **4 Teaser Draws:** (Left Side - For visual excitement only)
+        
+        **Prize:**
+        * Apple iPhone 17 Pro
         """)
     st.caption("© 2026 Al Masa Event Management")
 
 # --- MAIN APP ---
 st.title("✨ 2026 WINTER GRAND DRAW ✨")
+st.subtitle("By Al Masa Mall")
 st.write("---") 
 
 # STEP 1: DATA UPLOAD
@@ -134,23 +140,22 @@ else:
     # Metrics Bar
     m1, m2, m3 = st.columns(3)
     m1.metric("Participants", f"{total_participants:,}")
-    m2.metric("Grand Prize", "iPhone 17 Pro")
+    m2.metric("Official Winners", "1 Person")
     m3.metric("Status", "READY", delta="Online")
     st.markdown("---")
 
     # --- BUTTON SECTION ---
-    # Only show button if we aren't showing results yet
     if st.session_state.current_step == 0:
         b_col1, b_col2, b_col3 = st.columns([1, 2, 1])
         with b_col2:
-            if st.button("🎲 SHUFFLE & DRAW (3 WINNERS) 🎲", type="primary"):
+            if st.button("🎲 START GRAND DRAW 🎲", type="primary"):
                 st.session_state.current_step = 1
                 st.rerun()
 
     # --- ANIMATION & PROCESSING ---
     if st.session_state.current_step == 1:
         with st.container():
-            st.write("## 🔄 Extracting 3 Random Winners...")
+            st.write("## 🔄 Calculating 5 Lucky Selections...")
             progress = st.progress(0)
             
             # Dramatic delay loop
@@ -158,108 +163,90 @@ else:
                 time.sleep(0.02)
                 progress.progress(i + 1)
             
-            # --- SELECTION LOGIC (RANDOM) ---
-            # We need 3 unique people
-            num_to_select = min(3, len(draw_data))
-            
-            # This selects 3 completely random rows
+            # --- SELECTION LOGIC ---
+            # We need 5 unique people now (4 Teasers + 1 Winner)
+            num_to_select = min(5, len(draw_data))
             selected_winners = draw_data.sample(n=num_to_select)
             
-            # Assign ranks based on the order they were picked
-            # Row 0 -> Draw 1 (Left Top)
-            # Row 1 -> Draw 2 (Left Bottom)
-            # Row 2 -> Grand Winner (Right Main)
-            
-            # Add a 'Rank' column for the Audit view
+            # Assign ranks
             ranks = []
-            if num_to_select >= 1: ranks.append("Runner Up (Draw 1)")
-            if num_to_select >= 2: ranks.append("Runner Up (Draw 2)")
-            if num_to_select >= 3: ranks.append("GRAND WINNER")
+            # Fill the teasers
+            for i in range(num_to_select - 1):
+                ranks.append(f"Teaser #{i+1} (No Prize)")
             
-            selected_winners['Draw_Rank'] = ranks
+            # The last one is always the winner
+            if num_to_select > 0:
+                ranks.append("🏆 OFFICIAL WINNER 🏆")
             
-            # Save to session state so it persists
+            selected_winners['Status'] = ranks
+            
+            # Save to session state
             st.session_state.winners_list = selected_winners
             st.session_state.current_step = 2
             st.rerun()
 
-    # --- RESULTS DISPLAY (LAYOUT MATCHING MS PAINT) ---
+    # --- RESULTS DISPLAY ---
     if st.session_state.current_step == 2:
         st.balloons()
         
         winners = st.session_state.winners_list
-        
-        # Safe access to winners (handling case if file had < 3 people)
-        w1 = winners.iloc[0] if len(winners) > 0 else None
-        w2 = winners.iloc[1] if len(winners) > 1 else None
-        w3 = winners.iloc[2] if len(winners) > 2 else None
+        # The last person in the list is the Grand Winner
+        grand_winner = winners.iloc[-1]
+        # Everyone else is a teaser
+        teasers = winners.iloc[:-1]
 
         # --- THE LAYOUT GRID ---
-        # Left Column (1 part) | Right Column (2.5 parts)
         col_left, col_right = st.columns([1, 2.5])
         
-        # --- LEFT SIDE (Draw 1 & 2) ---
+        # --- LEFT SIDE (4 Teasers) ---
         with col_left:
-            st.markdown("<br>", unsafe_allow_html=True) # Spacer
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            # Draw 1 Box
-            if w1 is not None:
+            # Loop through teasers and create boxes
+            for idx, teaser_row in enumerate(teasers.itertuples(), 1):
                 st.markdown(f"""
                 <div class="side-draw-box">
-                    <div class="side-draw-title">Draw 1 Result</div>
-                    <div class="side-draw-name">{w1['Full_Name']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown("<br>", unsafe_allow_html=True) # Spacer between boxes
-            
-            # Draw 2 Box
-            if w2 is not None:
-                st.markdown(f"""
-                <div class="side-draw-box">
-                    <div class="side-draw-title">Draw 2 Result</div>
-                    <div class="side-draw-name">{w2['Full_Name']}</div>
+                    <div class="side-draw-title">Lucky Pick #{idx} (Teaser)</div>
+                    <div class="side-draw-name">{teaser_row.Full_Name}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-        # --- RIGHT SIDE (Main Winner) ---
+        # --- RIGHT SIDE (Grand Winner) ---
         with col_right:
-            if w3 is not None:
-                st.markdown('<div class="final-winner-title">Final Draw Winner</div>', unsafe_allow_html=True)
-                
-                # The Big Card
-                card(
-                    title="iPhone 17 Pro",
-                    text=f"WINNER: {w3['Full_Name']}\n\nInvoice: {w3['Invoice_ID']}\nMobile: {w3['Mobile_No']}",
-                    image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
-                    styles={
-                        "card": {
-                            "width": "100%", 
-                            "height": "500px",
-                            "border-radius": "15px",
-                            "box-shadow": "0 0 30px rgba(255, 215, 0, 0.3)"
-                        },
-                        "text": {
-                            "font-family": "sans-serif",
-                            "font-size": "24px"
-                        }
+            st.markdown('<div class="final-winner-title">Final Draw Winner</div>', unsafe_allow_html=True)
+            
+            # --- CARD UPDATE ---
+            card(
+                title=grand_winner['Full_Name'],  # Line 1: Name
+                text=f"Prize: iPhone 17 Pro\n\nInvoice: {grand_winner['Invoice_ID']}\nMobile: {grand_winner['Mobile_No']}", # Line 2: Details
+                image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
+                styles={
+                    "card": {
+                        "width": "100%", 
+                        "height": "500px",
+                        "border-radius": "15px",
+                        "box-shadow": "0 0 40px rgba(255, 215, 0, 0.6)" # Gold Glow
+                    },
+                    "title": {
+                        "font-family": "sans-serif",
+                        "font-size": "35px", # Big Name
+                        "font-weight": "bold"
+                    },
+                    "text": {
+                        "font-family": "sans-serif",
+                        "font-size": "20px"
                     }
-                )
-                st.markdown("<h2 style='text-align: center; color: #4CAF50;'>🎉 WE HAVE A WINNER! 🎉</h2>", unsafe_allow_html=True)
+                }
+            )
+            st.markdown("<h2 style='text-align: center; color: #FFD700;'>🎉 WE HAVE A WINNER! 🎉</h2>", unsafe_allow_html=True)
 
-        # --- ELABORATED AUDIT DATA ---
+        # --- AUDIT DATA ---
         st.write("---")
         with st.expander("📂 View Elaborated Audit Data", expanded=True):
             st.markdown("### 📋 Official Results Ledger")
             
-            # Clean up the dataframe for display
             display_df = winners.copy()
-            
-            # Select relevant columns only (adjust these names based on your actual CSV columns)
-            # Assuming standard columns like 'Full_Name', 'Invoice_ID', 'Mobile_No' exist
-            cols_to_show = ['Draw_Rank', 'Full_Name', 'Invoice_ID', 'Mobile_No']
-            
-            # Filter to exist columns only
+            cols_to_show = ['Status', 'Full_Name', 'Invoice_ID', 'Mobile_No']
             valid_cols = [c for c in cols_to_show if c in display_df.columns]
             
             st.dataframe(
@@ -267,14 +254,13 @@ else:
                 use_container_width=True,
                 hide_index=True,
                 column_config={
-                    "Draw_Rank": st.column_config.TextColumn("Prize Category", width="medium"),
-                    "Full_Name": st.column_config.TextColumn("Winner Name", width="large"),
+                    "Status": st.column_config.TextColumn("Result Category", width="medium"),
+                    "Full_Name": st.column_config.TextColumn("Participant Name", width="large"),
                     "Invoice_ID": "Invoice Ref",
                     "Mobile_No": "Contact"
                 }
             )
             
-        # Reset Button
         if st.button("Start New Draw"):
             st.session_state.current_step = 0
             st.session_state.winners_list = None
