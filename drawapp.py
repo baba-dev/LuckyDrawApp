@@ -70,7 +70,7 @@ with st.sidebar:
 # 1. HERO HEADER
 st.title("✨ 2026 WINTER GRAND DRAW ✨")
 st.markdown("### *By Al Masa Mall, Muscat.*")
-st.header("",divider="rainbow", width="stretch")
+st.write("---") 
 
 # 2. DATA UPLOAD (Only show if not yet processed)
 if not st.session_state.submitted:
@@ -210,6 +210,7 @@ else:
                 
                 st.success("Draw Complete. Congratulations!", icon="✅")
                 st.snow()
+
 
 
 
