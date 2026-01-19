@@ -21,12 +21,12 @@ st.set_page_config(
 with st.sidebar:
     st.image("https://aiwamediagroup.com/wp-content/uploads/2024/05/AiwaMediaGroup-980x393.webp")
     st.header(" **Al Masa Mall: Lucky Draw:tada:**", divider='rainbow')
-    with st.expander("2025 Al Masa Draw Guidelines", expanded=True):
+    with st.expander("2026 Al Masa Draw Guidelines", expanded=True):
         st.write("""
                 *   Required Details: Name, Instagram ID, Invoice & Mobile Number.
                 *   Draw Prizes:
-                    * Winner 1: Samsung S24 Ultra
-                    * Winner 2: Samsung S23
+                    * Winner 1: Apple iPhone 17 Pro
+                    * Winner 2: Apple iPhone 17
                 *   Draw Winners: 2
                 *   Extra Shake Enabled: Yes
                 *   Social Media Requirement: Yes
@@ -85,7 +85,7 @@ if 'submitted' in st.session_state and st.session_state.submitted:
                 st.dataframe(draw_data.head(279))
             with col2:
                 col2.metric("Total Participants", totalParticipants)
-                col2.metric("Prize 1", "Samsung S24 Ultra")
+                col2.metric("Prize 1", "Apple iPhone 17 Pro")
                 col2.metric("Prize 2", "Samsung S23")
                 col2.metric("Social Media Verified", "Verified")
 
@@ -125,7 +125,7 @@ if 'submitted' in st.session_state and st.session_state.submitted:
                     time.sleep(1)
                     st.balloons()
 
-                    prizes = ["Samsung S24 Ultra", "Samsung S23"]
+                    prizes = ["Apple iPhone 17 Pro", "Apple iPhone 17"]
                     cols = st.columns(num_winners)
 
                     for i, (winner_data, prize) in enumerate(zip(winners.itertuples(index=False), prizes)):
@@ -139,5 +139,6 @@ if 'submitted' in st.session_state and st.session_state.submitted:
 
                     st.dataframe(winners, use_container_width=st.session_state.use_container_width)
                     time.sleep(10)
-                    st.success('Al Masa 2024 Winter Draw is Now Over!', icon="✅")
+                    st.success('Al Masa 2026 Winter Draw is Now Over!', icon="✅")
                     st.snow()
+
