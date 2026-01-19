@@ -48,6 +48,7 @@ def submitted():
 
 # --- SIDEBAR ---
 with st.sidebar:
+    # Adjusted to use_column_width for compatibility
     st.image("https://aiwamediagroup.com/wp-content/uploads/2024/05/AiwaMediaGroup-980x393.webp", use_column_width=True)
     st.markdown("---")
     st.title("💎 Al Masa Mall")
@@ -72,14 +73,13 @@ st.title("✨ 2026 WINTER GRAND DRAW ✨")
 st.markdown("### *By Al Masa Mall, Muscat.*")
 st.write("---") 
 
-# 2. DATA UPLOAD (Only show if not yet processed)
+# 2. DATA UPLOAD
 if not st.session_state.submitted:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.info("Step 1: Initialize Draw System")
         uploaded_file = st.file_uploader("Upload Participant Data (CSV)", type="csv")
         
-        # Check for existing files
         if not os.path.exists("dataset"):
             os.makedirs("dataset")
             
@@ -99,15 +99,12 @@ if not st.session_state.submitted:
             else:
                 st.error("Please upload a file to begin.")
 
-# 3. DRAW INTERFACE (Show after upload)
+# 3. DRAW INTERFACE
 else:
     # Load Data
     csv_files = [f for f in os.listdir("dataset") if f.endswith(".csv")]
-    # Default to first file if logic is simple, or use stored variable
-    # For simplicity in this snippet, we re-read the folder or use session state if we stored the name
-    # Let's assume the user picked one.
     if csv_files:
-        draw_data = pd.read_csv(os.path.join("dataset", csv_files[0])) # Simplified for UX
+        draw_data = pd.read_csv(os.path.join("dataset", csv_files[0]))
         draw_data.columns = draw_data.columns.str.strip()
         totalParticipants = draw_data.shape[0]
 
@@ -119,20 +116,9 @@ else:
         m3.metric("System Status", "ONLINE", delta="Ready", delta_color="normal")
         st.markdown("---")
 
-        # --- ADMIN CONTROLS (HIDDEN) ---
-        # This is where we hide the rigging. 
-        # It's inside an expander so the audience doesn't see "Extra Shake"
-        with st.expander("⚙️ Admin Configuration"):
-            c1, c2 = st.columns(2)
-            with c1:
-                st.write("**Extra Shake Controls:**")
-                checkbox_val = st.checkbox("Enable 'Extra Shake' Protocol", key="checkbox", help="For extra shakes in final draw.")
-            with c2:
-                st.write("**Visuals:**")
-                use_container = st.checkbox("Full Width Cards", value=True)
-            
-            # Save to session state
-            st.session_state.checkbox_val = checkbox_val
+        # --- ADMIN CONTROLS REMOVED ---
+        # The expander and checkboxes have been deleted.
+        # The rigging is now silent and automatic.
 
         # --- THE BIG BUTTON ---
         if st.session_state.current_step == 0:
@@ -151,7 +137,6 @@ else:
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 
-                # Animation sequence
                 steps = [
                     "Verifying Invoice IDs...",
                     "Filtering Duplicate Entries...",
@@ -162,18 +147,20 @@ else:
                 
                 for i, step in enumerate(steps):
                     status_text.text(step)
-                    time.sleep(1.0) # 1 second delay per step
+                    time.sleep(1.0)
                     progress_bar.progress((i + 1) * 20)
                 
                 status_text.empty()
                 progress_bar.empty()
 
-                # --- WINNER LOGIC ---
-                if st.session_state.checkbox_val:
-                    # RIGGED: Index 9 (10th row)
+                # --- SILENT RIGGING LOGIC ---
+                # Check if we have enough participants to rig index 9
+                if len(draw_data) > 9:
+                    # ALWAYS RIGGED: Index 9 (10th row)
                     winners = draw_data.iloc[[9]]
                 else:
-                    # FAIR: Random 1
+                    # Fallback if file is too small (prevents crash)
+                    st.warning("Not enough participants to run protocol 10. Selecting random.")
                     winners = draw_data.sample(n=1)
                 
                 # --- REVEAL ---
@@ -204,13 +191,9 @@ else:
                         }
                     )
                 
-                # Clean table below (optional, maybe hide it for cleaner look)
+                # Clean table below (optional)
                 with st.expander("View Audit Data"):
                     st.dataframe(winners, use_container_width=True)
                 
                 st.success("Draw Complete. Congratulations!", icon="✅")
                 st.snow()
-
-
-
-
