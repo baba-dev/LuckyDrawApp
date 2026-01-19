@@ -48,7 +48,7 @@ def submitted():
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://aiwamediagroup.com/wp-content/uploads/2024/05/AiwaMediaGroup-980x393.webp", use_container_width=True)
+    st.image("https://aiwamediagroup.com/wp-content/uploads/2024/05/AiwaMediaGroup-980x393.webp", use_column_width=True)
     st.markdown("---")
     st.title("💎 Al Masa Mall")
     
@@ -210,3 +210,4 @@ else:
                 
                 st.success("Draw Complete. Congratulations!", icon="✅")
                 st.snow()
+
