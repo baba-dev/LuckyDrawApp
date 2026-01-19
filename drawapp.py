@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="Al Masa Mall: Grand Draw",
     page_icon="💎",
     layout="wide",
-    initial_sidebar_state="hidden"
+    initial_sidebar_state="collapsed"
 )
 
 # --- CUSTOM CSS FOR "TV-READY" LOOK ---
@@ -197,4 +197,5 @@ else:
                 
                 st.success("Draw Complete. Congratulations!", icon="✅")
                 st.snow()
+
 
