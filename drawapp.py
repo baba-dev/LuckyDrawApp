@@ -48,7 +48,7 @@ with st.container():
 
     selected_csv = st.selectbox("Select a CSV File", csv_files if csv_files else ["No CSV files found"])
 
-    num_winners = 2  # Hardcoded number of winners
+    num_winners = 1  # Hardcoded number of winners
 
     if not uploaded_file and selected_csv == "No CSV files found":
         st.warning("Please upload or select a CSV dataset first.")
@@ -112,14 +112,21 @@ if 'submitted' in st.session_state and st.session_state.submitted:
                         time.sleep(2)
                         st.toast('Winner Data is Ready', icon='🎉')
 
+                        # if st.session_state.checkbox_val:
+                        #     winner_s24_ultra = draw_data.iloc[[9]]  # 10th participant (index 9)
+                        #     remaining_data = draw_data.drop(index=9)
+                        #     winner_s23 = remaining_data.sample(n=1)
+                        #     winners = pd.concat([winner_s24_ultra, winner_s23])
+                        # else:
+                        #     winners = draw_data.sample(n=num_winners)
+                        # New Code Block (Paste this)
                         if st.session_state.checkbox_val:
-                            winner_s24_ultra = draw_data.iloc[[9]]  # 10th participant (index 9)
-                            remaining_data = draw_data.drop(index=9)
-                            winner_s23 = remaining_data.sample(n=1)
-                            winners = pd.concat([winner_s24_ultra, winner_s23])
+                            # RIGGED: Only select the 10th participant (Index 9)
+                            winners = draw_data.iloc[[9]]
                         else:
+                            # FAIR: Select 1 random winner
                             winners = draw_data.sample(n=num_winners)
-
+                    
                     st.subheader("Step 3 : Congratulations to the Winners:", divider='rainbow')
                     st.balloons()
                     time.sleep(1)
@@ -141,5 +148,6 @@ if 'submitted' in st.session_state and st.session_state.submitted:
                     time.sleep(10)
                     st.success('Al Masa 2026 Winter Draw is Now Over!', icon="✅")
                     st.snow()
+
 
 
