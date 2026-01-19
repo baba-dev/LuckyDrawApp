@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="Al Masa Mall: Grand Draw",
     page_icon="💎",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collasped"
 )
 
 # --- CUSTOM CSS ---
@@ -36,15 +36,22 @@ st.markdown("""
 
     /* CUSTOM BOXES FOR TEASER DRAWS */
     .side-draw-box {
-        border: 2px solid #444; /* Grey Border */
+        border: 2px solid #444; 
         background-color: #1e1e1e;
-        padding: 10px; /* Reduced padding to fit 4 boxes */
+        padding: 10px; 
         border-radius: 8px;
         text-align: center;
-        margin-bottom: 15px; /* Reduced margin */
+        margin-bottom: 15px; 
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
         opacity: 0.9;
+        animation: fadeIn 1s;
     }
+    
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 0.9; }
+    }
+
     .side-draw-title {
         color: #aaaaaa;
         font-size: 11px;
@@ -54,7 +61,7 @@ st.markdown("""
     }
     .side-draw-name {
         color: #ffffff;
-        font-size: 18px; /* Slightly smaller font */
+        font-size: 18px; 
         font-weight: bold;
     }
     
@@ -66,6 +73,12 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
         text-transform: uppercase;
+        animation: popIn 1s;
+    }
+    
+    @keyframes popIn {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -79,9 +92,20 @@ if 'winners_list' not in st.session_state:
     st.session_state.winners_list = None
 if 'selected_csv_path' not in st.session_state:
     st.session_state.selected_csv_path = None
+if 'animation_complete' not in st.session_state:
+    st.session_state.animation_complete = False
 
 def submitted():
     st.session_state.submitted = True
+
+# --- HELPER FUNCTION FOR HTML BOX ---
+def get_teaser_html(idx, name):
+    return f"""
+    <div class="side-draw-box">
+        <div class="side-draw-title">Lucky Pick #{idx} (Teaser)</div>
+        <div class="side-draw-name">{name}</div>
+    </div>
+    """
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -101,7 +125,7 @@ with st.sidebar:
     st.caption("© 2026 Al Masa Event Management")
 
 # --- MAIN APP ---
-st.title("✨ 2026 AL MASA MALL GRAND DRAW ✨")
+st.title("✨ 2026 WINTER GRAND DRAW ✨")
 st.write("---") 
 
 # STEP 1: DATA UPLOAD
@@ -148,96 +172,123 @@ else:
         b_col1, b_col2, b_col3 = st.columns([1, 2, 1])
         with b_col2:
             if st.button("🎲 START GRAND DRAW 🎲", type="primary"):
+                # Pre-calculate winners immediately
+                num_to_select = min(5, len(draw_data))
+                selected_winners = draw_data.sample(n=num_to_select)
+                
+                # Assign ranks
+                ranks = []
+                for i in range(num_to_select - 1):
+                    ranks.append(f"Teaser #{i+1} (No Prize)")
+                if num_to_select > 0:
+                    ranks.append("🏆 OFFICIAL WINNER 🏆")
+                selected_winners['Status'] = ranks
+                
+                st.session_state.winners_list = selected_winners
                 st.session_state.current_step = 1
+                st.session_state.animation_complete = False # Reset animation flag
                 st.rerun()
 
-    # --- ANIMATION & PROCESSING ---
+    # --- RESULTS DISPLAY WITH ANIMATION ---
     if st.session_state.current_step == 1:
-        with st.container():
-            st.write("## 🔄 Calculating 5 Lucky Selections...")
-            progress = st.progress(0)
-            
-            # Dramatic delay loop
-            for i in range(100):
-                time.sleep(0.02)
-                progress.progress(i + 1)
-            
-            # --- SELECTION LOGIC ---
-            # We need 5 unique people now (4 Teasers + 1 Winner)
-            num_to_select = min(5, len(draw_data))
-            selected_winners = draw_data.sample(n=num_to_select)
-            
-            # Assign ranks
-            ranks = []
-            # Fill the teasers
-            for i in range(num_to_select - 1):
-                ranks.append(f"Teaser #{i+1} (No Prize)")
-            
-            # The last one is always the winner
-            if num_to_select > 0:
-                ranks.append("🏆 OFFICIAL WINNER 🏆")
-            
-            selected_winners['Status'] = ranks
-            
-            # Save to session state
-            st.session_state.winners_list = selected_winners
-            st.session_state.current_step = 2
-            st.rerun()
-
-    # --- RESULTS DISPLAY ---
-    if st.session_state.current_step == 2:
-        st.balloons()
         
         winners = st.session_state.winners_list
-        # The last person in the list is the Grand Winner
         grand_winner = winners.iloc[-1]
-        # Everyone else is a teaser
         teasers = winners.iloc[:-1]
 
-        # --- THE LAYOUT GRID ---
+        # --- PREPARE LAYOUT GRID ---
         col_left, col_right = st.columns([1, 2.5])
         
-        # --- LEFT SIDE (4 Teasers) ---
+        # Create empty placeholders for animation
         with col_left:
             st.markdown("<br>", unsafe_allow_html=True)
-            
-            # Loop through teasers and create boxes
-            for idx, teaser_row in enumerate(teasers.itertuples(), 1):
-                st.markdown(f"""
-                <div class="side-draw-box">
-                    <div class="side-draw-title">Lucky Pick #{idx} (Teaser)</div>
-                    <div class="side-draw-name">{teaser_row.Full_Name}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-        # --- RIGHT SIDE (Grand Winner) ---
+            teaser_placeholders = []
+            for i in range(4):
+                teaser_placeholders.append(st.empty())
+                
         with col_right:
-            st.markdown('<div class="final-winner-title">Final Draw Winner</div>', unsafe_allow_html=True)
+            title_placeholder = st.empty()
+            card_placeholder = st.empty()
+            celebration_placeholder = st.empty()
+
+        # --- ANIMATION SEQUENCE (Only runs if not already done) ---
+        if not st.session_state.animation_complete:
             
-            # --- CARD UPDATE ---
-            card(
-                title=grand_winner['Full_Name'],  # Line 1: Name
-                text=f"Prize: iPhone 17 Pro\n\nInvoice: {grand_winner['Invoice_ID']}\nMobile: {grand_winner['Mobile_No']}", # Line 2: Details
-                image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
-                styles={
-                    "card": {
-                        "width": "100%", 
-                        "height": "500px",
-                        "border-radius": "15px",
-                        "box-shadow": "0 0 40px rgba(255, 215, 0, 0.6)" # Gold Glow
-                    },
-                    "title": {
-                        "font-family": "sans-serif",
-                        "font-size": "35px", # Big Name
-                        "font-weight": "bold"
-                    },
-                    "text": {
-                        "font-family": "sans-serif",
-                        "font-size": "20px"
+            # 1. Reveal Teasers One by One
+            for idx, (p_holder, teaser_row) in enumerate(zip(teaser_placeholders, teasers.itertuples())):
+                time.sleep(1.5) # Suspense delay
+                
+                # Show Toast
+                st.toast(f"Teaser #{idx+1}: {teaser_row.Full_Name}", icon="🎲")
+                
+                # Render HTML Box
+                p_holder.markdown(get_teaser_html(idx+1, teaser_row.Full_Name), unsafe_allow_html=True)
+            
+            # 2. Reveal Grand Winner
+            time.sleep(2)
+            st.toast("Selecting Grand Winner...", icon="🔄")
+            time.sleep(1.5)
+            
+            title_placeholder.markdown('<div class="final-winner-title">Final Draw Winner</div>', unsafe_allow_html=True)
+            
+            st.toast(f"WINNER: {grand_winner['Full_Name']}", icon="🏆")
+            st.balloons()
+            
+            # Render Card
+            with card_placeholder:
+                card(
+                    title=grand_winner['Full_Name'],
+                    text=f"Prize: iPhone 17 Pro\n\nInvoice: {grand_winner['Invoice_ID']}\nMobile: {grand_winner['Mobile_No']}",
+                    image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
+                    styles={
+                        "card": {
+                            "width": "100%", 
+                            "height": "500px",
+                            "border-radius": "15px",
+                            "box-shadow": "0 0 40px rgba(255, 215, 0, 0.6)"
+                        },
+                        "title": {
+                            "font-family": "sans-serif", "font-size": "35px", "font-weight": "bold"
+                        },
+                        "text": {
+                            "font-family": "sans-serif", "font-size": "20px"
+                        }
                     }
-                }
-            )
-            st.markdown("<h2 style='text-align: center; color: #FFD700;'>🎉 WE HAVE A WINNER! 🎉</h2>", unsafe_allow_html=True)
+                )
+            celebration_placeholder.markdown("<h2 style='text-align: center; color: #FFD700;'>🎉 WE HAVE A WINNER! 🎉</h2>", unsafe_allow_html=True)
+            
+            # Mark animation as complete so it doesn't re-run on simple interactions
+            st.session_state.animation_complete = True
+            st.snow()
+
+        else:
+            # --- STATIC VIEW (After Animation) ---
+            # If we just refresh the page, show everything instantly without waiting
+            
+            # Fill Left
+            for idx, (p_holder, teaser_row) in enumerate(zip(teaser_placeholders, teasers.itertuples())):
+                p_holder.markdown(get_teaser_html(idx+1, teaser_row.Full_Name), unsafe_allow_html=True)
+            
+            # Fill Right
+            title_placeholder.markdown('<div class="final-winner-title">Final Draw Winner</div>', unsafe_allow_html=True)
+            with card_placeholder:
+                card(
+                    title=grand_winner['Full_Name'],
+                    text=f"Prize: iPhone 17 Pro\n\nInvoice: {grand_winner['Invoice_ID']}\nMobile: {grand_winner['Mobile_No']}",
+                    image="https://img.freepik.com/free-vector/blue-neon-frame-dark-background_53876-113902.jpg",
+                    styles={
+                        "card": {
+                            "width": "100%", "height": "500px", "border-radius": "15px", "box-shadow": "0 0 40px rgba(255, 215, 0, 0.6)"
+                        },
+                        "title": {
+                            "font-family": "sans-serif", "font-size": "35px", "font-weight": "bold"
+                        },
+                        "text": {
+                            "font-family": "sans-serif", "font-size": "20px"
+                        }
+                    }
+                )
+            celebration_placeholder.markdown("<h2 style='text-align: center; color: #FFD700;'>🎉 WE HAVE A WINNER! 🎉</h2>", unsafe_allow_html=True)
 
         # --- AUDIT DATA ---
         st.write("---")
@@ -263,7 +314,5 @@ else:
         if st.button("Start New Draw"):
             st.session_state.current_step = 0
             st.session_state.winners_list = None
+            st.session_state.animation_complete = False
             st.rerun()
-
-
-
