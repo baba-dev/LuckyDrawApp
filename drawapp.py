@@ -101,8 +101,7 @@ with st.sidebar:
     st.caption("© 2026 Al Masa Event Management")
 
 # --- MAIN APP ---
-st.title("✨ 2026 WINTER GRAND DRAW ✨")
-st.write("By Al Masa Mall")
+st.title("✨ 2026 AL MASA MALL GRAND DRAW ✨")
 st.write("---") 
 
 # STEP 1: DATA UPLOAD
@@ -265,5 +264,6 @@ else:
             st.session_state.current_step = 0
             st.session_state.winners_list = None
             st.rerun()
+
 
 
